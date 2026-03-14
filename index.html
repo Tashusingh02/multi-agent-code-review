@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Review System 💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(135deg, #ffb3d9 0%, #e8a0f0 40%, #b3c6ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            overflow: hidden;
+        }
+
+        .sparkle span {
+            position: absolute;
+            font-size: 18px;
+            animation: float 4s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .win98 {
+            background: #fff0f8;
+            border: 3px solid #1a1a1a;
+            margin-bottom: 16px;
+            box-shadow: 4px 4px 0 #1a1a1a;
+        }
+
+        .win98-titlebar {
+            background: linear-gradient(90deg, #c084e8, #f472b6);
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .win98-title {
+            font-size: 7px;
+            color: white;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 #7c3aed;
+        }
+
+        .win98-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .win98-btn {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a1a1a;
+            background: #ffb3d9;
+            font-size: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a1a;
+            font-family: 'Press Start 2P', monospace;
+            line-height: 1;
+        }
+
+        .win98-content {
+            padding: 16px;
+        }
+
+        .header-win {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header-win h1 {
+            font-size: 13px;
+            color: #7c3aed;
+            text-shadow: 2px 2px 0 #f9a8d4;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .header-win p {
+            font-size: 6px;
+            color: #be185d;
+        }
+
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .desktop-icons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .icon {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .icon-img {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .icon-label {
+            font-size: 5px;
+            color: #1a1a1a;
+            background: rgba(255,255,255,0.7);
+            padding: 2px 4px;
+        }
+
+        select, input[type="text"] {
+            background: white;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+            padding: 6px 8px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            outline: none;
+            box-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        select { width: 140px; }
+        input[type="text"] { flex: 1; }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            background: white;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+            padding: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 6px;
+            resize: vertical;
+            min-height: 140px;
+            outline: none;
+            line-height: 2;
+            box-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        .btn-pink {
+            background: linear-gradient(180deg, #f9a8d4, #ec4899);
+            color: white;
+            border: 3px solid #1a1a1a;
+            padding: 12px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            box-shadow: 4px 4px 0 #1a1a1a;
+            text-shadow: 1px 1px 0 #9d174d;
+            transition: all 0.1s;
+        }
+
+        .btn-pink:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #1a1a1a;
+        }
+
+        .btn-pink:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0 0 0 #1a1a1a;
+        }
+
+        .btn-pink:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .agent-win {
+            border: 2px solid #1a1a1a;
+            box-shadow: 3px 3px 0 #1a1a1a;
+        }
+
+        .agent-titlebar {
+            padding: 4px 8px;
+            font-size: 6px;
+            color: white;
+            border-bottom: 2px solid #1a1a1a;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+        }
+
+        .agent-win.reviewer .agent-titlebar { background: linear-gradient(90deg, #f87171, #ef4444); }
+        .agent-win.tester .agent-titlebar { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .agent-win.improver .agent-titlebar { background: linear-gradient(90deg, #34d399, #10b981); }
+
+        .agent-body {
+            padding: 12px;
+            text-align: center;
+            background: #fff0f8;
+        }
+
+        .agent-icon { font-size: 22px; margin-bottom: 6px; }
+        .agent-status { font-size: 5px; color: #be185d; }
+        .agent-win.active .agent-body { background: #fce7f3; animation: pulse 0.8s ease-in-out infinite; }
+        .agent-win.done .agent-body { background: #f0fdf4; }
+
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .progress-bar {
+            height: 16px;
+            background: white;
+            border: 2px solid #1a1a1a;
+            margin-top: 12px;
+            display: none;
+            box-shadow: 2px 2px 0 #1a1a1a;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #f472b6 0px, #f472b6 10px, #c084fc 10px, #c084fc 20px);
+            animation: progress 2s linear infinite;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        @keyframes progress { 0% { background-position: 0; } 100% { background-position: 40px; } }
+
+        .result-win {
+            margin-bottom: 12px;
+        }
+
+        .result-win .win98-titlebar { }
+
+        .result-body {
+            padding: 12px;
+            font-size: 6px;
+            color: #1a1a1a;
+            line-height: 2.2;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 280px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .result-body::-webkit-scrollbar { width: 8px; }
+        .result-body::-webkit-scrollbar-track { background: #fce7f3; border-left: 2px solid #1a1a1a; }
+        .result-body::-webkit-scrollbar-thumb { background: #f472b6; border: 1px solid #1a1a1a; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .stat-box {
+            background: white;
+            border: 2px solid #1a1a1a;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 3px 3px 0 #1a1a1a;
+        }
+
+        .stat-num {
+            font-size: 20px;
+            color: #ec4899;
+            margin-bottom: 6px;
+            text-shadow: 2px 2px 0 #f9a8d4;
+        }
+
+        .stat-label { font-size: 5px; color: #7c3aed; }
+
+        .error-win { display: none; }
+        .results-section { display: none; }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #f0abfc, #c084fc);
+            border-top: 3px solid #1a1a1a;
+            padding: 6px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .start-btn {
+            background: linear-gradient(180deg, #f9a8d4, #ec4899);
+            border: 2px solid #1a1a1a;
+            padding: 4px 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 #1a1a1a;
+            text-shadow: 1px 1px 0 #9d174d;
+        }
+
+        .taskbar-time {
+            margin-left: auto;
+            font-size: 6px;
+            color: #1a1a1a;
+        }
+
+        .taskbar-item {
+            background: rgba(255,255,255,0.4);
+            border: 2px solid #1a1a1a;
+            padding: 3px 8px;
+            font-size: 6px;
+            color: #1a1a1a;
+        }
+
+        body { padding-bottom: 50px; }
+    </style>
+</head>
+<body>
+    <div class="sparkle" id="sparkles"></div>
+
+    <div class="container">
+
+        <div class="win98">
+            <div class="win98-titlebar">
+                <span class="win98-title">💖 CODE REVIEW SYSTEM v1.0 - [RUNNING]</span>
+                <div class="win98-btns">
+                    <div class="win98-btn">_</div>
+                    <div class="win98-btn">□</div>
+                    <div class="win98-btn">×</div>
+                </div>
+            </div>
+            <div class="header-win">
+                <h1>✨ CODE REVIEW.EXE ✨</h1>
+                <p>3 AI AGENTS READY TO ANALYZE YOUR CODE <span class="blink">♥</span></p>
+            </div>
+        </div>
+
+        <div class="desktop-icons">
+            <div class="icon"><span class="icon-img">📁</span><span class="icon-label">MY CODE</span></div>
+            <div class="icon"><span class="icon-img">🤖</span><span class="icon-label">AGENTS</span></div>
+            <div class="icon"><span class="icon-img">💾</span><span class="icon-label">RESULTS</span></div>
+            <div class="icon"><span class="icon-img">🗑️</span><span class="icon-label">RECYCLE</span></div>
+        </div>
+
+        <div class="win98">
+            <div class="win98-titlebar">
+                <span class="win98-title">📝 INPUT_MODULE.exe</span>
+                <div class="win98-btns">
+                    <div class="win98-btn">_</div>
+                    <div class="win98-btn">□</div>
+                    <div class="win98-btn">×</div>
+                </div>
+            </div>
+            <div class="win98-content">
+                <div class="form-row">
+                    <select id="language">
+                        <option value="python">🐍 PYTHON</option>
+                        <option value="javascript">🌐 JAVASCRIPT</option>
+                        <option value="typescript">📘 TYPESCRIPT</option>
+                        <option value="java">☕ JAVA</option>
+                        <option value="cpp">⚙️ C++</option>
+                    </select>
+                    <input type="text" id="focus" placeholder="FOCUS: SECURITY, PERFORMANCE..." />
+                </div>
+                <textarea id="code" placeholder="// PASTE YOUR CODE HERE...&#10;// AGENTS WILL REVIEW, TEST & IMPROVE IT ♥"></textarea>
+                <button class="btn-pink" id="submitBtn" onclick="reviewCode()">💖 DEPLOY AGENTS 💖</button>
+            </div>
+        </div>
+
+        <div class="win98">
+            <div class="win98-titlebar">
+                <span class="win98-title">🤖 AGENT_STATUS.exe</span>
+                <div class="win98-btns">
+                    <div class="win98-btn">_</div>
+                    <div class="win98-btn">□</div>
+                    <div class="win98-btn">×</div>
+                </div>
+            </div>
+            <div class="win98-content">
+                <div class="agents-grid">
+                    <div class="agent-win reviewer" id="agent-reviewer">
+                        <div class="agent-titlebar">🔍 REVIEWER.exe</div>
+                        <div class="agent-body">
+                            <div class="agent-icon">🔍</div>
+                            <div class="agent-status" id="status-reviewer">[ STANDBY ]</div>
+                        </div>
+                    </div>
+                    <div class="agent-win tester" id="agent-tester">
+                        <div class="agent-titlebar">🧪 TESTER.exe</div>
+                        <div class="agent-body">
+                            <div class="agent-icon">🧪</div>
+                            <div class="agent-status" id="status-tester">[ STANDBY ]</div>
+                        </div>
+                    </div>
+                    <div class="agent-win improver" id="agent-improver">
+                        <div class="agent-titlebar">🛠 IMPROVER.exe</div>
+                        <div class="agent-body">
+                            <div class="agent-icon">🛠</div>
+                            <div class="agent-status" id="status-improver">[ STANDBY ]</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="win98 error-win" id="errorWin">
+            <div class="win98-titlebar" style="background: linear-gradient(90deg, #f87171, #ef4444);">
+                <span class="win98-title">❌ ERROR.exe</span>
+                <div class="win98-btns"><div class="win98-btn">×</div></div>
+            </div>
+            <div class="win98-content">
+                <p style="font-size:7px; color:#ef4444;" id="errorMsg"></p>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+
+            <div class="win98">
+                <div class="win98-titlebar">
+                    <span class="win98-title">📊 STATS.exe</span>
+                    <div class="win98-btns"><div class="win98-btn">_</div><div class="win98-btn">□</div></div>
+                </div>
+                <div class="win98-content">
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-issues">0</div>
+                            <div class="stat-label">ISSUES FOUND</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-tests">0</div>
+                            <div class="stat-label">TESTS GENERATED</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="stat-fixes">0</div>
+                            <div class="stat-label">FIXES APPLIED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="win98 result-win">
+                <div class="win98-titlebar">
+                    <span class="win98-title">💖 SUMMARY.txt</span>
+                    <div class="win98-btns"><div class="win98-btn">_</div><div class="win98-btn">□</div></div>
+                </div>
+                <div class="result-body" id="out-summary"></div>
+            </div>
+
+            <div class="win98 result-win">
+                <div class="win98-titlebar" style="background: linear-gradient(90deg, #f87171, #ef4444);">
+                    <span class="win98-title">🔍 REVIEW_REPORT.txt</span>
+                    <div class="win98-btns"><div class="win98-btn">_</div><div class="win98-btn">□</div></div>
+                </div>
+                <div class="result-body" id="out-review"></div>
+            </div>
+
+            <div class="win98 result-win">
+                <div class="win98-titlebar" style="background: linear-gradient(90deg, #fbbf24, #f59e0b);">
+                    <span class="win98-title">🧪 TEST_SUITE.py</span>
+                    <div class="win98-btns"><div class="win98-btn">_</div><div class="win98-btn">□</div></div>
+                </div>
+                <div class="result-body" id="out-tests"></div>
+            </div>
+
+            <div class="win98 result-win">
+                <div class="win98-titlebar" style="background: linear-gradient(90deg, #34d399, #10b981);">
+                    <span class="win98-title">🛠 IMPROVED_CODE.py</span>
+                    <div class="win98-btns"><div class="win98-btn">_</div><div class="win98-btn">□</div></div>
+                </div>
+                <div class="result-body" id="out-improved"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <button class="start-btn">💖 START</button>
+        <div class="taskbar-item">CODE REVIEW.EXE</div>
+        <div class="taskbar-time" id="clock"></div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        const sparkleChars = ['✦','✧','★','✨','♥','✿','❀','◆'];
+        const sparkleEl = document.getElementById('sparkles');
+        for (let i = 0; i < 20; i++) {
+            const s = document.createElement('span');
+            s.textContent = sparkleChars[Math.floor(Math.random() * sparkleChars.length)];
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            s.style.animationDelay = (Math.random() * 4) + 's';
+            s.style.fontSize = (12 + Math.random() * 16) + 'px';
+            s.style.color = ['#f472b6','#c084fc','#818cf8','#f9a8d4'][Math.floor(Math.random()*4)];
+            sparkleEl.appendChild(s);
+        }
+
+        function setAgent(name, status, state) {
+            const box = document.getElementById('agent-' + name);
+            box.className = 'agent-win ' + name + (state ? ' ' + state : '');
+            document.getElementById('status-' + name).textContent = status;
+        }
+
+        function count(text, words) {
+            return words.reduce((n, w) => n + (text.toLowerCase().split(w.toLowerCase()).length - 1), 0);
+        }
+
+        async function reviewCode() {
+            const code = document.getElementById('code').value.trim();
+            const language = document.getElementById('language').value;
+            const focus = document.getElementById('focus').value.trim();
+            if (!code) { alert('💖 Please paste some code first!'); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ AGENTS WORKING...';
+
+            document.getElementById('progressBar').style.display = 'block';
+            document.getElementById('progressFill').style.width = '60%';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('errorWin').style.display = 'none';
+
+            setAgent('reviewer', '[ ANALYZING... ]', 'active');
+            setAgent('tester', '[ ANALYZING... ]', 'active');
+            setAgent('improver', '[ WAITING... ]', '');
+
+            try {
+                const res = await fetch('/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language, focus: focus || null })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'SYSTEM ERROR');
+
+                document.getElementById('progressFill').style.width = '100%';
+                setTimeout(() => { document.getElementById('progressBar').style.display = 'none'; }, 500);
+
+                setAgent('reviewer', '[ COMPLETE ✓ ]', 'done');
+                setAgent('tester', '[ COMPLETE ✓ ]', 'done');
+                setAgent('improver', '[ COMPLETE ✓ ]', 'done');
+
+                document.getElementById('stat-issues').textContent = count(data.review.output, ['critical','major','minor','error','bug','issue']);
+                document.getElementById('stat-tests').textContent = count(data.tests.output, ['def test_','it(','test(','assert']);
+                document.getElementById('stat-fixes').textContent = count(data.improved_code.output, ['fixed','added','improved','removed','changed']);
+
+                document.getElementById('out-summary').textContent = data.summary;
+                document.getElementById('out-review').textContent = data.review.output;
+                document.getElementById('out-tests').textContent = data.tests.output;
+                document.getElementById('out-improved').textContent = data.improved_code.output;
+
+                document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (err) {
+                setAgent('reviewer', '[ ERROR ]', '');
+                setAgent('tester', '[ ERROR ]', '');
+                setAgent('improver', '[ ERROR ]', '');
+                document.getElementById('progressBar').style.display = 'none';
+                document.getElementById('errorMsg').textContent = '> ERROR: ' + err.message;
+                document.getElementById('errorWin').style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💖 DEPLOY AGENTS 💖';
+            }
+        }
+    </script>
+</body>
+</html>
